@@ -1,20 +1,31 @@
-const { Pool } = require('pg');
+// Uses @neondatabase/serverless in production (HTTP-based, no idle TCP connections)
+// Falls back to standard pg Pool for local development
 require('dotenv').config();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-});
+let pool;
 
-pool.on('connect', () => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('Connected to PostgreSQL database');
-  }
-});
+if (process.env.NODE_ENV === 'production' || process.env.NEON_DATABASE_URL) {
+  // Serverless-safe: Neon's HTTP driver — no persistent connections
+  const { Pool } = require('@neondatabase/serverless');
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
+} else {
+  // Local dev: standard pg Pool with connection reuse
+  const { Pool } = require('pg');
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: false,
+    max: 10,
+  });
 
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
+  pool.on('connect', () => {
+    console.log('Connected to PostgreSQL');
+  });
+
+  pool.on('error', (err) => {
+    console.error('Unexpected DB error:', err);
+  });
+}
 
 module.exports = pool;
