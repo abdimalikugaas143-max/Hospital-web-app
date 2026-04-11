@@ -1,13 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "framework": null,
+  "installCommand": "cd backend && npm install && cd ../frontend && npm install",
+  "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "cd backend && npm install",
   "functions": {
     "api/index.js": {
       "memory": 256,
       "maxDuration": 30,
-      "includeFiles": "backend/**"
+      "includeFiles": "backend/src/**"
     }
   },
   "rewrites": [
