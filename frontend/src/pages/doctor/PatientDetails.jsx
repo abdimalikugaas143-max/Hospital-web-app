@@ -27,6 +27,7 @@ export default function PatientDetails() {
 
   const fetchData = async () => {
     setLoading(true);
+    setError('');
     try {
       const [patientRes, recordsRes] = await Promise.all([
         patientsAPI.getById(patientId),
@@ -41,6 +42,7 @@ export default function PatientDetails() {
       }
     } catch (err) {
       console.error(err);
+      setError('Failed to load patient data. Please go back and try again.');
     } finally {
       setLoading(false);
     }
@@ -74,6 +76,17 @@ export default function PatientDetails() {
   };
 
   if (loading) return <DashboardLayout><div className="p-6"><LoadingSpinner text="Loading patient..." /></div></DashboardLayout>;
+
+  if (!patient) return (
+    <DashboardLayout>
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-red-700 flex items-center justify-between">
+          <span>{error || 'Patient not found.'}</span>
+          <button onClick={() => navigate(-1)} className="text-sm font-medium underline">Go Back</button>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
 
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
 

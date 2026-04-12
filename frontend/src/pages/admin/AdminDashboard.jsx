@@ -11,15 +11,31 @@ const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const loadStats = () => {
+    setLoading(true);
+    setError(null);
     reportsAPI.getStats()
       .then(({ data: d }) => setData(d))
-      .catch(console.error)
+      .catch(() => setError('Failed to load dashboard. Please retry.'))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { loadStats(); }, []);
 
   if (loading) return <DashboardLayout><div className="p-6"><LoadingSpinner text="Loading..." /></div></DashboardLayout>;
+
+  if (error) return (
+    <DashboardLayout>
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-red-700 flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={loadStats} className="text-sm font-medium underline">Retry</button>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
 
   return (
     <DashboardLayout>

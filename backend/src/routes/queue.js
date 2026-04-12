@@ -12,8 +12,9 @@ router.get('/today', authenticate, authorize('receptionist', 'doctor', 'admin'),
 
     let query = `
       SELECT q.*, a.appointment_time, a.status as appointment_status, a.symptoms,
+             a.patient_id,
              p.card_number, pu.name as patient_name, pu.phone as patient_phone,
-             du.name as doctor_name, dep.name as department_name
+             du.name as doctor_name, d.specialization, dep.name as department_name
       FROM queue q
       JOIN appointments a ON q.appointment_id = a.id
       JOIN patients p ON a.patient_id = p.id
@@ -27,11 +28,9 @@ router.get('/today', authenticate, authorize('receptionist', 'doctor', 'admin'),
     const params = [today];
 
     if (req.user.role === 'doctor') {
-      const doctorResult = await pool.query('SELECT id FROM doctors WHERE user_id = $1', [req.user.id]);
-      if (doctorResult.rows.length > 0) {
-        params.push(doctorResult.rows[0].id);
-        query += ` AND a.doctor_id = $${params.length}`;
-      }
+      // Subquery avoids a separate round-trip (N+1 fix)
+      query += ` AND a.doctor_id = (SELECT id FROM doctors WHERE user_id = $2 LIMIT 1)`;
+      params.push(req.user.id);
     }
     if (department_id) {
       params.push(department_id);

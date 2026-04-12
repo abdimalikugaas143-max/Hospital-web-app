@@ -85,6 +85,7 @@ export default function BookAppointment() {
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
+    let bookedData = null;
     try {
       const { data } = await appointmentsAPI.book({
         doctor_id: form.doctor_id,
@@ -94,15 +95,22 @@ export default function BookAppointment() {
         symptoms: form.symptoms,
         notes: form.notes,
       });
-      // Fetch full appointment details
-      const apptDetail = await appointmentsAPI.getById(data.appointment.id);
-      setBookedAppointment(apptDetail.data.appointment);
-      setShowTicket(true);
+      bookedData = data.appointment;
     } catch (err) {
-      setError(err.response?.data?.error || 'Booking failed');
-    } finally {
+      setError(err.response?.data?.error || 'Booking failed. Please try again.');
       setLoading(false);
+      return;
     }
+
+    // Fetch full details (QR code, doctor info) — fall back to booking response if this fails
+    try {
+      const apptDetail = await appointmentsAPI.getById(bookedData.id);
+      setBookedAppointment(apptDetail.data.appointment);
+    } catch {
+      setBookedAppointment({ ...bookedData, doctor_name: form.doctor_name, department_name: form.department_name });
+    }
+    setShowTicket(true);
+    setLoading(false);
   };
 
   const formatTime = (t) => {

@@ -1,7 +1,7 @@
 // Polling-based "socket" context — works on serverless (Vercel).
 // Fires queue:update callbacks every POLL_INTERVAL ms.
 // Components use this identically to the Socket.io version — no changes needed.
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 
 const SocketContext = createContext(null);
@@ -24,11 +24,9 @@ export function SocketProvider({ children }) {
 
     // Fire all registered queue:update listeners on each poll tick
     const interval = setInterval(() => {
-      if (listenersRef.current.length > 0) {
-        listenersRef.current.forEach((cb) => {
-          try { cb({ action: 'poll' }); } catch {}
-        });
-      }
+      listenersRef.current.forEach((cb) => {
+        try { cb({ action: 'poll' }); } catch {}
+      });
     }, POLL_INTERVAL);
 
     return () => {
@@ -37,17 +35,17 @@ export function SocketProvider({ children }) {
     };
   }, [user]);
 
-  // Register a queue update listener — returns an unsubscribe function
-  const onQueueUpdate = (callback) => {
+  // Stable reference — safe to use as a useEffect dependency in consumers
+  const onQueueUpdate = useCallback((callback) => {
     listenersRef.current = [...listenersRef.current, callback];
     return () => {
       listenersRef.current = listenersRef.current.filter((cb) => cb !== callback);
     };
-  };
+  }, []);
 
   // These are no-ops in polling mode — kept for API compatibility
-  const joinDepartment = () => {};
-  const leaveDepartment = () => {};
+  const joinDepartment = useCallback(() => {}, []);
+  const leaveDepartment = useCallback(() => {}, []);
 
   return (
     <SocketContext.Provider

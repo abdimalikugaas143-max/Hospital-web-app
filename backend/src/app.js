@@ -12,15 +12,24 @@ const allowedOrigins = [
   'http://localhost:3000',
 ].filter(Boolean);
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile, curl, etc.)
+    // Allow requests with no origin (mobile, curl, Vercel same-domain, etc.)
     if (!origin) return callback(null, true);
     if (allowedOrigins.some(o => origin.startsWith(o))) return callback(null, true);
+    // In production (Vercel) frontend and backend share the same origin — always allow
+    if (process.env.NODE_ENV === 'production') return callback(null, true);
     callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
-}));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type'],
+};
+
+app.use(cors(corsOptions));
+
+// Handle OPTIONS preflight for all routes
+app.options('*', cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));

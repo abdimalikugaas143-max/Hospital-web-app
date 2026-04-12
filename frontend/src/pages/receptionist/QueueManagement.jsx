@@ -37,9 +37,9 @@ export default function QueueManagement() {
 
   useEffect(() => {
     fetchData();
-    const unsubscribe = onQueueUpdate?.(() => fetchData());
-    return () => unsubscribe?.();
-  }, [fetchData]);
+    const unsubscribe = onQueueUpdate(() => fetchData());
+    return () => unsubscribe();
+  }, [fetchData, onQueueUpdate]);
 
   useEffect(() => {
     if (selectedDept) {
@@ -47,12 +47,6 @@ export default function QueueManagement() {
       return () => leaveDepartment?.(selectedDept);
     }
   }, [selectedDept]);
-
-  // Auto-refresh every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
 
   const handleCall = async (id) => {
     try {

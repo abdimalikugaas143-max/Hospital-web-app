@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatsCard from '../../components/StatsCard';
@@ -12,15 +12,10 @@ export default function ReceptionistDashboard() {
   const [stats, setStats] = useState(null);
   const [todayQueue, setTodayQueue] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { onQueueUpdate } = useSocket();
 
-  useEffect(() => {
-    fetchData();
-    const unsubscribe = onQueueUpdate?.(() => fetchData());
-    return () => unsubscribe?.();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [statsRes, queueRes] = await Promise.all([
         queueAPI.getStats(),
@@ -28,12 +23,20 @@ export default function ReceptionistDashboard() {
       ]);
       setStats(statsRes.data.stats);
       setTodayQueue(queueRes.data.queue.slice(0, 8));
+      setError(null);
     } catch (err) {
       console.error(err);
+      setError('Failed to load dashboard. Please refresh.');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    const unsubscribe = onQueueUpdate(() => fetchData());
+    return () => unsubscribe();
+  }, [fetchData, onQueueUpdate]);
 
   const handleCall = async (queueId) => {
     try {
@@ -65,6 +68,11 @@ export default function ReceptionistDashboard() {
 
         {loading ? (
           <LoadingSpinner text="Loading dashboard..." />
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-red-700 flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={fetchData} className="text-sm font-medium underline">Retry</button>
+          </div>
         ) : (
           <>
             {/* Stats */}

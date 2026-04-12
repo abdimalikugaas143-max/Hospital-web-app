@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import StatusBadge from '../../components/StatusBadge';
@@ -14,15 +14,10 @@ export default function DoctorDashboard() {
   const [todayPatients, setTodayPatients] = useState([]);
   const [queueStats, setQueueStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { onQueueUpdate } = useSocket();
 
-  useEffect(() => {
-    fetchData();
-    const unsubscribe = onQueueUpdate?.(() => fetchData());
-    return () => unsubscribe?.();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [apptRes, statsRes] = await Promise.all([
         appointmentsAPI.getToday(),
@@ -30,12 +25,20 @@ export default function DoctorDashboard() {
       ]);
       setTodayPatients(apptRes.data.appointments);
       setQueueStats(statsRes.data.stats);
+      setError(null);
     } catch (err) {
       console.error(err);
+      setError('Failed to load dashboard. Please refresh.');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    const unsubscribe = onQueueUpdate(() => fetchData());
+    return () => unsubscribe();
+  }, [fetchData, onQueueUpdate]);
 
   const completedToday = todayPatients.filter(a => a.status === 'completed').length;
   const waitingToday = todayPatients.filter(a => a.status === 'confirmed').length;
@@ -51,7 +54,12 @@ export default function DoctorDashboard() {
           </p>
         </div>
 
-        {loading ? <LoadingSpinner text="Loading..." /> : (
+        {loading ? <LoadingSpinner text="Loading..." /> : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-red-700 flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={fetchData} className="text-sm font-medium underline">Retry</button>
+          </div>
+        ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <StatsCard title="Today's Patients" value={todayPatients.length} icon="👥" color="blue" />
