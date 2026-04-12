@@ -40,8 +40,20 @@ export default function Login() {
     }
   };
 
-  const demoLogin = (email, password) => {
+  const demoLogin = async (email, password) => {
     setForm({ email, password });
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await authAPI.login({ email, password });
+      login(data.token, data.user);
+      const from = location.state?.from?.pathname || roleRedirects[data.user.role] || '/';
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.error || 'Demo login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
