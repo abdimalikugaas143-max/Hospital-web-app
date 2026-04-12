@@ -3,7 +3,7 @@ import React from 'react';
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
   static getDerivedStateFromError(error) {
@@ -12,6 +12,7 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, info) {
     console.error('App crashed:', error, info.componentStack);
+    this.setState({ errorInfo: info });
   }
 
   render() {
@@ -34,18 +35,17 @@ export default class ErrorBoundary extends React.Component {
               The page encountered an error. Please try refreshing.
             </p>
             {this.state.error && (
-              <details style={{ textAlign: 'left', marginBottom: '20px' }}>
-                <summary style={{ fontSize: '12px', color: '#9ca3af', cursor: 'pointer', marginBottom: '8px' }}>
-                  Error details
-                </summary>
+              <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+                <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '6px' }}>Error details:</p>
                 <pre style={{
                   fontSize: '11px', color: '#ef4444', background: '#fef2f2',
-                  padding: '12px', borderRadius: '8px', overflow: 'auto', maxHeight: '120px',
-                  whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+                  padding: '12px', borderRadius: '8px', overflow: 'auto', maxHeight: '160px',
+                  whiteSpace: 'pre-wrap', wordBreak: 'break-all', userSelect: 'all',
                 }}>
                   {this.state.error.toString()}
+                  {this.state.errorInfo ? '\n\n' + this.state.errorInfo.componentStack : ''}
                 </pre>
-              </details>
+              </div>
             )}
             <button
               onClick={() => { this.setState({ hasError: false, error: null }); window.location.href = '/'; }}
