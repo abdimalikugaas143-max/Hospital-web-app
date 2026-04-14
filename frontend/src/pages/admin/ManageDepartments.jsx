@@ -15,7 +15,8 @@ export default function ManageDepartments() {
 
   useEffect(() => {
     departmentsAPI.getAll()
-      .then(({ data }) => setDepartments(data.departments))
+      .then(({ data }) => setDepartments(data.departments || []))
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 

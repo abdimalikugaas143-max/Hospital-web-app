@@ -21,7 +21,7 @@ export default function Reports() {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    departmentsAPI.getAll().then(({ data }) => setDepartments(data.departments)).catch(console.error);
+    departmentsAPI.getAll().then(({ data }) => setDepartments(data?.departments || [])).catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -39,8 +39,8 @@ export default function Reports() {
         status: filters.status || undefined,
         limit: 100,
       });
-      setAppointments(data.appointments);
-      setTotal(data.total);
+      setAppointments(data?.appointments || []);
+      setTotal(data?.total || 0);
     } catch (err) {
       console.error(err);
     } finally {
@@ -52,7 +52,7 @@ export default function Reports() {
     setLoading(true);
     try {
       const { data } = await reportsAPI.getDoctors({ start_date: filters.start_date, end_date: filters.end_date });
-      setDoctorStats(data.doctors);
+      setDoctorStats(data?.doctors || []);
     } catch (err) {
       console.error(err);
     } finally {

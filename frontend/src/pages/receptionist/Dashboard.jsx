@@ -21,8 +21,8 @@ export default function ReceptionistDashboard() {
         queueAPI.getStats(),
         queueAPI.getToday(),
       ]);
-      setStats(statsRes.data.stats);
-      setTodayQueue(queueRes.data.queue.slice(0, 8));
+      setStats(statsRes.data?.stats || {});
+      setTodayQueue((queueRes.data?.queue || []).slice(0, 8));
       setError(null);
     } catch (err) {
       console.error(err);

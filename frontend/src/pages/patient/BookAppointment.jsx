@@ -40,7 +40,7 @@ export default function BookAppointment() {
   });
 
   useEffect(() => {
-    departmentsAPI.getAll().then(({ data }) => setDepartments(data.departments)).catch(console.error);
+    departmentsAPI.getAll().then(({ data }) => setDepartments(data?.departments || [])).catch(console.error);
   }, []);
 
   const handleSelectDepartment = async (dept) => {
@@ -48,7 +48,7 @@ export default function BookAppointment() {
     setLoading(true);
     try {
       const { data } = await doctorsAPI.getAll({ department_id: dept.id });
-      setDoctors(data.doctors);
+      setDoctors(data?.doctors || []);
       setStep(1);
     } catch { setError('Failed to load doctors'); }
     finally { setLoading(false); }
@@ -65,7 +65,7 @@ export default function BookAppointment() {
     setSlotsLoading(true);
     try {
       const { data } = await doctorsAPI.getAvailableSlots(doctorId, date);
-      setSlots(data.slots);
+      setSlots(data?.slots || []);
     } catch { setError('Failed to load time slots'); }
     finally { setSlotsLoading(false); }
   };

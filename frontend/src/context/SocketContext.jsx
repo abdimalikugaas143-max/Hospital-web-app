@@ -56,6 +56,14 @@ export function SocketProvider({ children }) {
   );
 }
 
+const defaultSocketValue = {
+  socket: null,
+  connected: false,
+  joinDepartment: () => {},
+  leaveDepartment: () => {},
+  onQueueUpdate: (cb) => () => {},
+};
+
 export function useSocket() {
-  return useContext(SocketContext);
+  return useContext(SocketContext) || defaultSocketValue;
 }

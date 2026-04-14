@@ -32,7 +32,7 @@ export default function MyAppointments() {
     setLoading(true);
     try {
       const { data } = await appointmentsAPI.getAll();
-      setAppointments(data.appointments);
+      setAppointments(data?.appointments || []);
     } catch (err) {
       console.error(err);
     } finally {

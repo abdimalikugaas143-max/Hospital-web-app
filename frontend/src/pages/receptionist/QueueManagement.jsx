@@ -21,8 +21,8 @@ export default function QueueManagement() {
         queueAPI.getToday(selectedDept ? { department_id: selectedDept } : {}),
         queueAPI.getStats(),
       ]);
-      setQueue(queueRes.data.queue);
-      setStats(statsRes.data.stats);
+      setQueue(queueRes.data?.queue || []);
+      setStats(statsRes.data?.stats || {});
       setLastUpdated(new Date());
     } catch (err) {
       console.error(err);
@@ -163,10 +163,10 @@ export default function QueueManagement() {
         {stats && (
           <div className="grid grid-cols-4 gap-3 mb-6">
             {[
-              { label: 'Waiting', value: stats.waiting, bg: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-              { label: 'Active', value: parseInt(stats.called || 0) + parseInt(stats.in_progress || 0), bg: 'bg-blue-50 text-blue-700 border-blue-200' },
-              { label: 'Completed', value: stats.completed, bg: 'bg-green-50 text-green-700 border-green-200' },
-              { label: 'Total', value: stats.total, bg: 'bg-gray-50 text-gray-700 border-gray-200' },
+              { label: 'Waiting', value: stats?.waiting ?? 0, bg: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+              { label: 'Active', value: parseInt(stats?.called || 0) + parseInt(stats?.in_progress || 0), bg: 'bg-blue-50 text-blue-700 border-blue-200' },
+              { label: 'Completed', value: stats?.completed ?? 0, bg: 'bg-green-50 text-green-700 border-green-200' },
+              { label: 'Total', value: stats?.total ?? 0, bg: 'bg-gray-50 text-gray-700 border-gray-200' },
             ].map(({ label, value, bg }) => (
               <div key={label} className={`rounded-xl border p-3 text-center ${bg}`}>
                 <p className="text-2xl font-bold">{value}</p>

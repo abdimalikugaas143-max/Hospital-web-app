@@ -23,8 +23,8 @@ export default function DoctorDashboard() {
         appointmentsAPI.getToday(),
         queueAPI.getStats(),
       ]);
-      setTodayPatients(apptRes.data.appointments);
-      setQueueStats(statsRes.data.stats);
+      setTodayPatients(apptRes.data?.appointments || []);
+      setQueueStats(statsRes.data?.stats || {});
       setError(null);
     } catch (err) {
       console.error(err);

@@ -17,7 +17,7 @@ export default function AdminDashboard() {
     setLoading(true);
     setError(null);
     reportsAPI.getStats()
-      .then(({ data: d }) => setData(d))
+      .then(({ data: d }) => setData(d || {}))
       .catch(() => setError('Failed to load dashboard. Please retry.'))
       .finally(() => setLoading(false));
   };
@@ -47,10 +47,10 @@ export default function AdminDashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatsCard title="Total Patients" value={data?.stats.totalPatients?.toLocaleString()} icon="👥" color="blue" />
-          <StatsCard title="Active Doctors" value={data?.stats.totalDoctors} icon="🩺" color="purple" />
-          <StatsCard title="Today's Appts" value={data?.stats.todayAppointments} icon="📅" color="orange" />
-          <StatsCard title="Total Appts" value={data?.stats.totalAppointments?.toLocaleString()} icon="📋" color="green" />
+          <StatsCard title="Total Patients" value={data?.stats?.totalPatients?.toLocaleString()} icon="👥" color="blue" />
+          <StatsCard title="Active Doctors" value={data?.stats?.totalDoctors} icon="🩺" color="purple" />
+          <StatsCard title="Today's Appts" value={data?.stats?.todayAppointments} icon="📅" color="orange" />
+          <StatsCard title="Total Appts" value={data?.stats?.totalAppointments?.toLocaleString()} icon="📋" color="green" />
         </div>
 
         {/* Quick actions */}
