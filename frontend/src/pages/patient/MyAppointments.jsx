@@ -46,7 +46,8 @@ export default function MyAppointments() {
       await appointmentsAPI.cancel(id);
       setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'cancelled' } : a));
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to cancel');
+      const e = err.response?.data?.error;
+      alert(typeof e === 'string' ? e : 'Failed to cancel');
     }
     setCancelId(null);
   };

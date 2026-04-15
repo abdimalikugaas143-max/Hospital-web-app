@@ -97,7 +97,8 @@ export default function BookAppointment() {
       });
       bookedData = data.appointment;
     } catch (err) {
-      setError(err.response?.data?.error || 'Booking failed. Please try again.');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Booking failed. Please try again.');
       setLoading(false);
       return;
     }

@@ -74,7 +74,8 @@ export default function ManageDoctors() {
       }
       setModalOpen(false);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to save');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Failed to save');
     } finally {
       setSaving(false);
     }
@@ -86,7 +87,8 @@ export default function ManageDoctors() {
       await doctorsAPI.delete(id);
       setDoctors(prev => prev.filter(d => d.id !== id));
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to deactivate');
+      const e = err.response?.data?.error;
+      alert(typeof e === 'string' ? e : 'Failed to deactivate');
     }
   };
 

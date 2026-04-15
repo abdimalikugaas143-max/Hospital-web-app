@@ -55,7 +55,8 @@ export default function Register() {
       login(data.token, data.user);
       navigate('/book-appointment');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Registration failed');
     } finally {
       setLoading(false);
     }

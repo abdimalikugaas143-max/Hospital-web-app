@@ -39,11 +39,12 @@ export default class ErrorBoundary extends React.Component {
                 <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '6px' }}>Error details:</p>
                 <pre style={{
                   fontSize: '11px', color: '#ef4444', background: '#fef2f2',
-                  padding: '12px', borderRadius: '8px', overflow: 'auto', maxHeight: '160px',
+                  padding: '12px', borderRadius: '8px', overflow: 'auto',
                   whiteSpace: 'pre-wrap', wordBreak: 'break-all', userSelect: 'all',
+                  textAlign: 'left', maxHeight: '400px',
                 }}>
                   {this.state.error.toString()}
-                  {this.state.errorInfo ? '\n\n' + this.state.errorInfo.componentStack : ''}
+                  {this.state.errorInfo ? '\n\nComponent Stack:' + this.state.errorInfo.componentStack : ''}
                 </pre>
               </div>
             )}

@@ -49,7 +49,8 @@ export default function ManageDepartments() {
       }
       setModalOpen(false);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to save department');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Failed to save department');
     } finally {
       setSaving(false);
     }
@@ -61,7 +62,8 @@ export default function ManageDepartments() {
       await departmentsAPI.delete(id);
       setDepartments(prev => prev.map(d => d.id === id ? { ...d, is_active: false } : d));
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to deactivate');
+      const e = err.response?.data?.error;
+      alert(typeof e === 'string' ? e : 'Failed to deactivate');
     }
   };
 

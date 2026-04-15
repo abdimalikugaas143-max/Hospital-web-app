@@ -71,7 +71,8 @@ export default function RegisterPatient() {
       setSuccess({ patient: data.patient, tempPassword: data.tempPassword, appointment: appointmentData });
       setStep(2);
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Registration failed');
     } finally {
       setLoading(false);
     }

@@ -60,7 +60,8 @@ export default function PatientDetails() {
       setSuccess('Patient marked as completed!');
       setTimeout(() => navigate('/doctor/patients'), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to complete');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Failed to complete');
     } finally {
       setSaving(false);
     }
@@ -71,7 +72,8 @@ export default function PatientDetails() {
       await appointmentsAPI.updateStatus(appointmentId, { status: 'in_progress' });
       if (appointment) setAppointment({ ...appointment, status: 'in_progress' });
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Failed to update');
     }
   };
 

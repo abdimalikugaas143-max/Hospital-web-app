@@ -43,7 +43,8 @@ export default function ReceptionistDashboard() {
       await queueAPI.callPatient(queueId);
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to call patient');
+      const e = err.response?.data?.error;
+      alert(typeof e === 'string' ? e : 'Failed to call patient');
     }
   };
 
@@ -52,7 +53,8 @@ export default function ReceptionistDashboard() {
       await queueAPI.completeEntry(queueId);
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to complete');
+      const e = err.response?.data?.error;
+      alert(typeof e === 'string' ? e : 'Failed to complete');
     }
   };
 

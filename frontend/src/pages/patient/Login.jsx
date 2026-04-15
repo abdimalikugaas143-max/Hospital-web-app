@@ -34,7 +34,8 @@ export default function Login() {
       const from = location.state?.from?.pathname || roleRedirects[data.user.role] || '/';
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.error || 'Invalid email or password');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Invalid email or password');
     } finally {
       setLoading(false);
     }
@@ -50,7 +51,8 @@ export default function Login() {
       const from = location.state?.from?.pathname || roleRedirects[data.user.role] || '/';
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.error || 'Demo login failed');
+      const e = err.response?.data?.error;
+      setError(typeof e === 'string' ? e : 'Demo login failed');
     } finally {
       setLoading(false);
     }
