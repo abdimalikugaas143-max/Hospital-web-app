@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const demo = require('../demo-data');
 
 const authenticate = async (req, res, next) => {
   try {
@@ -9,7 +10,16 @@ const authenticate = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'demo_jwt_secret_key';
+    const decoded = jwt.verify(token, secret);
+
+    // Demo mode — resolve user from in-memory store
+    if (demo.demoMode) {
+      const user = await demo.findUserById(decoded.userId);
+      if (!user) return res.status(401).json({ error: 'User not found' });
+      req.user = user;
+      return next();
+    }
 
     const result = await pool.query(
       'SELECT id, name, email, role, phone, is_active FROM users WHERE id = $1',

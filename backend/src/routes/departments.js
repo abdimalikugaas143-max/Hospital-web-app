@@ -3,9 +3,11 @@ const router = express.Router();
 const pool = require('../config/db');
 const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roleCheck');
+const demo = require('../demo-data');
 
 // GET /api/departments - public
 router.get('/', async (req, res) => {
+  if (demo.demoMode) return res.json({ departments: demo.DEMO_DEPARTMENTS });
   try {
     const result = await pool.query(
       `SELECT d.*, COUNT(doc.id) as doctor_count

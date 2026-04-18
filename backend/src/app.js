@@ -1,6 +1,6 @@
 // Pure Express app — no HTTP server, no Socket.io
 // Used by both local dev (server.js) and Vercel serverless (api/index.js)
-require('dotenv').config();
+// dotenv is loaded by server.js / api/index.js before this module is required.
 const express = require('express');
 const cors = require('cors');
 

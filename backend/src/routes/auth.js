@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 const { authenticate } = require('../middleware/auth');
+const demo = require('../demo-data');
 
 // Generate card number
 function generateCardNumber() {
@@ -89,6 +90,26 @@ router.post('/login', async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  // Demo mode — no database configured
+  if (demo.demoMode) {
+    const user = await demo.findUserByEmail(email);
+    if (!user) return res.status(401).json({ error: 'Invalid email or password' });
+    const isValid = await demo.verifyPassword(password, user.password_hash);
+    if (!isValid) return res.status(401).json({ error: 'Invalid email or password' });
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET || 'demo_jwt_secret_key',
+      { expiresIn: '7d' }
+    );
+    const patientExtra = user.role === 'patient' ? (() => { const p = demo.getPatientExtra(user.id); return p ? { patientId: p.id, cardNumber: p.card_number } : {}; })() : {};
+    const doctorExtra = user.role === 'doctor' ? (() => { const d = demo.getDoctorExtra(user.id); return d ? { doctorId: d.id, departmentId: d.department_id, specialization: d.specialization, departmentName: d.departmentName } : {}; })() : {};
+    return res.json({
+      message: 'Login successful',
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, ...patientExtra, ...doctorExtra },
+    });
   }
 
   try {

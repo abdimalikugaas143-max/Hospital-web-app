@@ -4,9 +4,11 @@ const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roleCheck');
+const demo = require('../demo-data');
 
 // GET /api/doctors - public
 router.get('/', async (req, res) => {
+  if (demo.demoMode) return res.json({ doctors: demo.DEMO_DOCTORS });
   try {
     const { department_id } = req.query;
     let query = `

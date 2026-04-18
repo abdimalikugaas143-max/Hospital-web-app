@@ -3,9 +3,13 @@ const router = express.Router();
 const pool = require('../config/db');
 const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roleCheck');
+const demo = require('../demo-data');
+
+const DEMO_STATS = { waiting: '0', called: '0', in_progress: '0', completed: '0', skipped: '0', total: '0' };
 
 // GET /api/queue/today - get today's queue
 router.get('/today', authenticate, authorize('receptionist', 'doctor', 'admin'), async (req, res) => {
+  if (demo.demoMode) return res.json({ queue: [] });
   try {
     const today = new Date().toISOString().split('T')[0];
     const { department_id } = req.query;
@@ -108,6 +112,7 @@ router.put('/:id/complete', authenticate, authorize('doctor', 'receptionist', 'a
 
 // GET /api/queue/stats - queue stats for dashboard
 router.get('/stats', authenticate, authorize('receptionist', 'admin', 'doctor'), async (req, res) => {
+  if (demo.demoMode) return res.json({ stats: DEMO_STATS });
   try {
     const today = new Date().toISOString().split('T')[0];
     const result = await pool.query(

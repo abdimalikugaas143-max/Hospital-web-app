@@ -3,9 +3,18 @@ const router = express.Router();
 const pool = require('../config/db');
 const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roleCheck');
+const demo = require('../demo-data');
 
 // GET /api/reports/stats - admin dashboard stats
 router.get('/stats', authenticate, authorize('admin'), async (req, res) => {
+  if (demo.demoMode) {
+    return res.json({
+      stats: { totalPatients: 1, totalDoctors: 1, todayAppointments: 0, totalAppointments: 0 },
+      departmentStats: demo.DEMO_DEPARTMENTS.map(d => ({ name: d.name, appointment_count: '0' })),
+      statusStats: [],
+      weeklyTrend: [],
+    });
+  }
   try {
     const today = new Date().toISOString().split('T')[0];
 

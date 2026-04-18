@@ -4,6 +4,7 @@ const pool = require('../config/db');
 const QRCode = require('qrcode');
 const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roleCheck');
+const demo = require('../demo-data');
 
 // Generate queue number for a department on a given date
 async function getNextQueueNumber(client, departmentId, date) {
@@ -19,6 +20,7 @@ async function getNextQueueNumber(client, departmentId, date) {
 
 // GET /api/appointments - role-based
 router.get('/', authenticate, async (req, res) => {
+  if (demo.demoMode) return res.json({ appointments: [], total: 0 });
   try {
     const { status, date, doctor_id, department_id, page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
@@ -66,6 +68,7 @@ router.get('/', authenticate, async (req, res) => {
 
 // GET /api/appointments/today - receptionist/doctor
 router.get('/today', authenticate, authorize('receptionist', 'doctor', 'admin'), async (req, res) => {
+  if (demo.demoMode) return res.json({ appointments: [] });
   try {
     const today = new Date().toISOString().split('T')[0];
     const { department_id } = req.query;
